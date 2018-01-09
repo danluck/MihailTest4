@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         list = findViewById(R.id.list_view);
 
         b_search = findViewById(R.id.b_search);
+        b_scan_le = findViewById(R.id.b_scan_le);
 
         bluetoothAdapterStatusValue = findViewById(R.id.textViewBluetoothStatusValue);
     }
@@ -60,10 +62,15 @@ public class MainActivity extends AppCompatActivity {
         b_do_discover.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mBluetoothAdapter.isDiscovering()) {
-                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-                    startActivityForResult(intent, REQUEST_DISCOVERABLE);
+                Log.d(TAG, "Discover: start discovering");
+                if (mBluetoothAdapter.isDiscovering()) {
+                    Log.d(TAG, "Discover: cancelDiscovery");
+                    mBluetoothAdapter.cancelDiscovery();
                 }
+
+                mBluetoothAdapter.startDiscovery();
+                IntentFilter discoveryDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+                registerReceiver(mBroadcastReceiver3, discoveryDevicesIntent);
             }
         });
 
@@ -88,9 +95,60 @@ public class MainActivity extends AppCompatActivity {
         b_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mBluetoothAdapter.startDiscovery();
+                //mBluetoothAdapter.startDiscovery();
             }
         });
+
+        b_scan_le.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                scanLeDevice(mBluetoothAdapter.isDiscovering());
+            }
+        });
+    }
+
+    private DeviceListAdapter mLeDeviceListAdapter;
+
+    // Device scan callback.
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, int rssi,
+                                     byte[] scanRecord) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "run: mLeScanCallback");
+                            mLeDeviceListAdapter.add(device);
+                            mLeDeviceListAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            };
+
+    private boolean mScanning;
+    private Handler mHandler;
+
+    // Stops scanning after 30 seconds.
+    private static final long SCAN_PERIOD = 30000;
+
+    private void scanLeDevice(final boolean enable) {
+        if (enable) {
+            // Stops scanning after a pre-defined scan period.
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mScanning = false;
+                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                }
+            }, SCAN_PERIOD);
+
+            mScanning = true;
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+        } else {
+            mScanning = false;
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        }
     }
 
     private void CheckDeviceOpportunities() {
@@ -137,6 +195,22 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private BroadcastReceiver mBroadcastReceiver3 = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            Log.d(TAG, "mBroadcastReceiver3: onReceive ACTION_FOUND");
+
+            if (action.equals(BluetoothDevice.ACTION_FOUND)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                mBtDevices.add(device);
+                Log.d(TAG, "onReceive: " + device.getName() + ":" + device.getAddress());
+                mDeviceListAdapter = new DeviceListAdapter(context, R.layout.device_adapter_view, mBtDevices);
+                listViewDeviceFound.setAdapter(mDeviceListAdapter);
+            }
+        }
+    };
+
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy: called.");
@@ -165,13 +239,23 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mReceiver, intentFilter);
     }
 
+    public ArrayList<BluetoothDevice> mBtDevices = new ArrayList<>();
+    public DeviceListAdapter mDeviceListAdapter;
+    ListView listViewDeviceFound;
+
+
     private static final int REQUEST_ENABLED = 0;
     private static final int REQUEST_DISCOVERABLE = 0;
 
     private Button b_on, b_off, b_do_discover, b_list;
     private Button b_search;
+    private Button b_scan_le;
     private ListView list;
     private BluetoothAdapter mBluetoothAdapter;
 
     private TextView bluetoothAdapterStatusValue;
+
+    public void Discover(View view) {
+
+    }
 }
