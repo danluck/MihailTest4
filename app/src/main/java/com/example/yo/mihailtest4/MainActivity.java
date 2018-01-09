@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
         b_search = findViewById(R.id.b_search);
 
+        b_open_another_window = findViewById(R.id.b_open_another_window);
+
         b_on.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,6 +94,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        b_open_another_window.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ScrollingActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private static final int REQUEST_ENABLED = 0;
@@ -99,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button b_on, b_off, b_do_discover, b_list;
     private Button b_search;
+    private Button b_open_another_window;
     private ListView list;
     private BluetoothAdapter bluetoothAdapter;
 
