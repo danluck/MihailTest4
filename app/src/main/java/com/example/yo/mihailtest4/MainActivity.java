@@ -2,7 +2,10 @@ package com.example.yo.mihailtest4;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,12 +35,15 @@ public class MainActivity extends AppCompatActivity {
         list = findViewById(R.id.list_view);
 
         b_search = findViewById(R.id.b_search);
+
+        bluetoothAdapterStatusValue = findViewById(R.id.textViewBluetoothStatusValue);
     }
 
     private void SetEventHandlers() {
         b_on.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "b_on: ACTION_REQUEST_ENABLE");
                 Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(intent, REQUEST_ENABLED);
             }
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         b_off.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "b_off: disable");
                 bluetoothAdapter.disable();
             }
         });
@@ -101,6 +108,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Create a BroadcastReceiver for ACTION_FOUND.
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (bluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, bluetoothAdapter.ERROR);
+
+                switch(state) {
+                    case BluetoothAdapter.STATE_OFF:
+                        Log.d(TAG, "mReceiver: STATE_OFF");
+                        bluetoothAdapterStatusValue.setText(R.string.bluetoot_adapter_status_value_off);
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        Log.d(TAG, "mReceiver: STATE_TURNING_OFF");
+                        bluetoothAdapterStatusValue.setText(R.string.bluetoot_adapter_status_value_turning_off);
+                        break;
+                    case BluetoothAdapter.STATE_ON:
+                        Log.d(TAG, "mReceiver: STATE_ON");
+                        bluetoothAdapterStatusValue.setText(R.string.bluetoot_adapter_status_value_on);
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        Log.d(TAG, "mReceiver: STATE_TURNING_ON");
+                        bluetoothAdapterStatusValue.setText(R.string.bluetoot_adapter_status_value_turning_on);
+                        break;
+                }
+            }
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy: called.");
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,11 +155,10 @@ public class MainActivity extends AppCompatActivity {
 
         CheckDeviceOpportunities();
 
-        bluetoothAdapterStatusValue = findViewById(R.id.textViewBluetoothStatusValue);
-        bluetoothAdapterStatusValue.setText(bluetoothAdapter.isEnabled() ? R.string.bluetoot_adapter_status_value_enabled :
-                R.string.bluetoot_adapter_status_value_disabled);
-
         SetEventHandlers();
+
+        IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(mReceiver, intentFilter);
     }
 
     private static final int REQUEST_ENABLED = 0;

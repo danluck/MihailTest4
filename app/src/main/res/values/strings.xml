@@ -3,10 +3,12 @@
 
     <string name="ble_not_supported">Bluetooth not supported</string>
 
-    <string name="bluetoot_adapter_status_name">Initial bluetooth state:</string>
-    <string name="bluetoot_adapter_status_value_unknown">Unknown</string>
-    <string name="bluetoot_adapter_status_value_enabled">On</string>
-    <string name="bluetoot_adapter_status_value_disabled">Off</string>
+    <string name="bluetoot_adapter_status_name">Current bluetooth state:</string>
+    <string name="bluetoot_adapter_status_value_unknown">unknown</string>
+    <string name="bluetoot_adapter_status_value_turning_on">Turning on...</string>
+    <string name="bluetoot_adapter_status_value_turning_off">Turning off...</string>
+    <string name="bluetoot_adapter_status_value_on">On</string>
+    <string name="bluetoot_adapter_status_value_off">Off</string>
 
     <string name="button_text_list_paired_devices">Show list paired devices</string>
     <string name="button_text_search">Start search3</string>
