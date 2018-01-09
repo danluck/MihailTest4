@@ -3,8 +3,10 @@ package com.example.yo.mihailtest4;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -17,22 +19,11 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    private static final String TAG = "MainActivity";
+
+    private void GetElementsIds() {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            Toast.makeText(this,"Bluetooth is not supported", Toast.LENGTH_SHORT).show();
-            finish();
-        }
-
-        bluetoothAdapterStatusValue = findViewById(R.id.textViewBluetoothStatusValue);
-        bluetoothAdapterStatusValue.setText(bluetoothAdapter.isEnabled() ? R.string.bluetoot_adapter_status_value_enabled :
-                R.string.bluetoot_adapter_status_value_disabled);
-
-
         b_on = findViewById(R.id.b_on);
         b_off = findViewById(R.id.b_off);
         b_do_discover = findViewById(R.id.b_do_discover);
@@ -41,9 +32,9 @@ public class MainActivity extends AppCompatActivity {
         list = findViewById(R.id.list_view);
 
         b_search = findViewById(R.id.b_search);
+    }
 
-        b_open_another_window = findViewById(R.id.b_open_another_window);
-
+    private void SetEventHandlers() {
         b_on.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,15 +84,39 @@ public class MainActivity extends AppCompatActivity {
                 bluetoothAdapter.startDiscovery();
             }
         });
+    }
 
-        b_open_another_window.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ScrollingActivity.class);
-                startActivity(intent);
-            }
-        });
+    private void CheckDeviceOpportunities() {
+        if (bluetoothAdapter == null) {
+            Log.d(TAG, "Bluetooth is not supported on this device");
+            Toast.makeText(this,"", Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
+        // Use this check to determine whether BLE is supported on the device. Then
+        // you can selectively disable BLE-related features.
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Log.d(TAG, "Start application");
+
+        GetElementsIds();
+
+        CheckDeviceOpportunities();
+
+        bluetoothAdapterStatusValue = findViewById(R.id.textViewBluetoothStatusValue);
+        bluetoothAdapterStatusValue.setText(bluetoothAdapter.isEnabled() ? R.string.bluetoot_adapter_status_value_enabled :
+                R.string.bluetoot_adapter_status_value_disabled);
+
+        SetEventHandlers();
     }
 
     private static final int REQUEST_ENABLED = 0;
@@ -109,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Button b_on, b_off, b_do_discover, b_list;
     private Button b_search;
-    private Button b_open_another_window;
     private ListView list;
     private BluetoothAdapter bluetoothAdapter;
 

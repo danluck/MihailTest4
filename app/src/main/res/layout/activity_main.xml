@@ -11,14 +11,14 @@
         android:layout_width="0dp"
         android:layout_height="24dp"
         android:text="@string/bluetoot_adapter_status_name"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="8dp" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/textViewBluetoothStatusValue"
+        tools:layout_editor_absoluteX="16dp" />
 
     <TextView
         android:id="@+id/textViewBluetoothStatusValue"
         android:layout_width="145dp"
         android:layout_height="22dp"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/bluetoot_adapter_status_value_unknown"
         app:layout_constraintStart_toEndOf="@+id/textViewBluetoothStatus"
@@ -26,8 +26,8 @@
 
     <Button
         android:id="@+id/b_on"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="38dp"
+        android:layout_height="46dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="On"
@@ -36,8 +36,8 @@
 
     <Button
         android:id="@+id/b_off"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="58dp"
+        android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:text="Off"
         app:layout_constraintStart_toEndOf="@+id/b_on"
@@ -48,10 +48,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="48dp"
         android:text="Do discover"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_on" />
+        app:layout_constraintStart_toEndOf="@+id/b_off"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/list_view"
@@ -82,15 +82,5 @@
         android:text="@string/button_text_search"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/list_view" />
-
-    <Button
-        android:id="@+id/b_open_another_window"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginStart="16dp"
-        android:text="@string/button_text_open_another_window"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
