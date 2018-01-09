@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void GetElementsIds() {
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         b_on = findViewById(R.id.b_on);
         b_off = findViewById(R.id.b_off);
         b_do_discover = findViewById(R.id.b_do_discover);
@@ -53,14 +53,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "b_off: disable");
-                bluetoothAdapter.disable();
+                mBluetoothAdapter.disable();
             }
         });
 
         b_do_discover.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!bluetoothAdapter.isDiscovering()) {
+                if (!mBluetoothAdapter.isDiscovering()) {
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
                     startActivityForResult(intent, REQUEST_DISCOVERABLE);
                 }
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         b_list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+                Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
                 ArrayList<String> devices = new ArrayList<>();
 
@@ -88,13 +88,13 @@ public class MainActivity extends AppCompatActivity {
         b_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bluetoothAdapter.startDiscovery();
+                mBluetoothAdapter.startDiscovery();
             }
         });
     }
 
     private void CheckDeviceOpportunities() {
-        if (bluetoothAdapter == null) {
+        if (mBluetoothAdapter == null) {
             Log.d(TAG, "Bluetooth is not supported on this device");
             Toast.makeText(this,"", Toast.LENGTH_SHORT).show();
             finish();
@@ -112,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (bluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, bluetoothAdapter.ERROR);
+            if (mBluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, mBluetoothAdapter.ERROR);
 
                 switch(state) {
                     case BluetoothAdapter.STATE_OFF:
@@ -157,6 +157,10 @@ public class MainActivity extends AppCompatActivity {
 
         SetEventHandlers();
 
+        bluetoothAdapterStatusValue.setText(mBluetoothAdapter.isEnabled() ?
+                R.string.bluetoot_adapter_status_value_on :
+                R.string.bluetoot_adapter_status_value_off);
+
         IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mReceiver, intentFilter);
     }
@@ -167,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
     private Button b_on, b_off, b_do_discover, b_list;
     private Button b_search;
     private ListView list;
-    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothAdapter mBluetoothAdapter;
 
     private TextView bluetoothAdapterStatusValue;
 }
