@@ -1,5 +1,6 @@
 package com.example.yo.mihailtest4;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -7,7 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -102,10 +105,30 @@ public class MainActivity extends AppCompatActivity {
         b_scan_le.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                scanLeDevice(mBluetoothAdapter.isDiscovering());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+                }
+
             }
         });
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_COARSE_LOCATION: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "onRequestPermissionsResult: Permission for scan granted, start scanLeDevice");
+                    scanLeDevice(true);
+                    // Permission granted, yay! Start the Bluetooth device scan.
+                } else {
+                    // Alert the user that this application requires the location permission to perform the scan.
+                }
+            }
+        }
+    }
+
+    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 456;
 
     private DeviceListAdapter mLeDeviceListAdapter;
 
@@ -119,8 +142,9 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             Log.d(TAG, "run: mLeScanCallback");
-                            mLeDeviceListAdapter.add(device);
-                            mLeDeviceListAdapter.notifyDataSetChanged();
+                            Log.d(TAG, "run: Find device name:" + device.getName() + "address:" + device.getAddress());
+                            //mLeDeviceListAdapter.add(device);
+                            //mLeDeviceListAdapter.notifyDataSetChanged();
                         }
                     });
                 }
@@ -134,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void scanLeDevice(final boolean enable) {
         if (enable) {
+            /*
             // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(new Runnable() {
                 @Override
@@ -141,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                     mScanning = false;
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 }
-            }, SCAN_PERIOD);
+            }, SCAN_PERIOD);*/
 
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
